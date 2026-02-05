@@ -2099,60 +2099,77 @@
             }
 
             /* === MOBILE FIXES START === */
-            
-            /* FIX 1: Announcement Bar - Full text visibility */
+
+            /* FIX 1: Announcement Bar - Full text visibility with improved layout */
             .announcement-bar {
-                padding: 12px 50px 12px 15px !important;
+                padding: 14px 55px 14px 15px !important;
                 height: auto !important;
-                min-height: 60px !important;
+                min-height: 70px !important;
+                white-space: normal !important;
+                overflow: visible !important;
             }
 
             .announcement-content {
                 flex-direction: row !important;
                 align-items: flex-start !important;
                 justify-content: flex-start !important;
-                gap: 8px !important;
+                gap: 10px !important;
                 padding-right: 0 !important;
                 text-align: left !important;
+                flex-wrap: nowrap !important;
             }
 
             .announcement-content .icon {
                 flex-shrink: 0 !important;
-                margin-top: 2px !important;
-                font-size: 0.85rem !important;
+                margin-top: 3px !important;
+                font-size: 0.9rem !important;
             }
 
             .announcement-text {
                 flex: 1 !important;
-                line-height: 1.5 !important;
+                line-height: 1.6 !important;
                 white-space: normal !important;
                 word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
                 text-align: left !important;
-                font-size: 0.75rem !important;
-                max-width: 100% !important;
+                font-size: 0.8rem !important;
+                max-width: calc(100% - 20px) !important;
+                display: block !important;
+            }
+
+            .announcement-text strong {
+                display: inline !important;
             }
 
             .announcement-text a {
                 display: inline !important;
-                margin-left: 3px !important;
+                margin-left: 4px !important;
+                white-space: nowrap !important;
             }
 
             .announcement-close {
                 position: absolute !important;
-                right: 15px !important;
+                right: 12px !important;
                 top: 50% !important;
                 transform: translateY(-50%) !important;
                 flex-shrink: 0 !important;
                 z-index: 10 !important;
+                width: 30px !important;
+                height: 30px !important;
+                font-size: 1.4rem !important;
+                padding: 0 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
             }
 
-            /* FIX 3: Add padding to Hero section and adjust body padding */
+            /* FIX 3: Enhanced padding for Hero and Menu sections */
             body {
-                padding-top: 120px !important;
+                padding-top: 130px !important;
             }
 
             body.admin-bar {
-                padding-top: 152px !important;
+                padding-top: 162px !important;
             }
 
             body.announcement-hidden {
@@ -2163,18 +2180,22 @@
                 padding-top: 102px !important;
             }
 
+            /* Hero Section - Add generous top padding */
             #hero {
-                padding-top: 30px !important;
-                padding-bottom: 40px !important;
+                padding-top: 40px !important;
+                padding-bottom: 50px !important;
+                padding-left: 20px !important;
+                padding-right: 20px !important;
+                min-height: 70vh !important;
             }
 
             /* Adjust header position */
             .voip-header {
-                top: 60px !important;
+                top: 70px !important;
             }
 
             body.admin-bar .voip-header {
-                top: 92px !important;
+                top: 102px !important;
             }
 
             .voip-header.announcement-hidden {
@@ -2185,21 +2206,28 @@
                 top: 32px !important;
             }
 
-            /* Adjust mobile menu position */
+            /* Adjust mobile menu position with proper top spacing */
             .header-nav {
-                top: 120px !important;
+                top: 130px !important;
+                padding-top: 20px !important;
             }
 
             body.admin-bar .header-nav {
-                top: 152px !important;
+                top: 162px !important;
             }
 
+            .voip-header.announcement-hidden + .header-nav,
             .voip-header.announcement-hidden .header-nav {
                 top: 70px !important;
             }
 
             body.admin-bar .voip-header.announcement-hidden .header-nav {
                 top: 102px !important;
+            }
+
+            /* Additional spacing for menu items */
+            .header-nav.active {
+                padding: 20px 0 !important;
             }
         }
 
@@ -2434,10 +2462,10 @@
                 });
             }
 
-            // FIX 2: Mobile Menu Toggle - Improved Logic
+            // FIX 2: Mobile Menu Toggle - Enhanced Logic to prevent auto-close
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
             const headerNav = document.getElementById('headerNav');
-            
+
             if (mobileMenuToggle) {
                 // Toggle menu when clicking hamburger
                 mobileMenuToggle.addEventListener('click', function(e) {
@@ -2447,26 +2475,55 @@
                     headerNav.classList.toggle('active');
                 });
 
-                // Prevent dropdown parent links from closing menu
-                const dropdownToggles = document.querySelectorAll('.dropdown > a');
-                dropdownToggles.forEach(toggle => {
-                    toggle.addEventListener('click', function(e) {
-                        if (window.innerWidth <= 992) {
-                            e.preventDefault();
-                            // Just prevent default, don't close menu
-                        }
-                    });
+                // Handle dropdown parent links - toggle dropdown visibility on mobile
+                const dropdownParents = document.querySelectorAll('.dropdown');
+                dropdownParents.forEach(dropdown => {
+                    const parentLink = dropdown.querySelector(':scope > a');
+                    const dropdownMenu = dropdown.querySelector('.dropdown-menu, .mega-menu');
+
+                    if (parentLink && dropdownMenu) {
+                        // Add mobile dropdown state
+                        let isDropdownOpen = false;
+
+                        parentLink.addEventListener('click', function(e) {
+                            if (window.innerWidth <= 992) {
+                                e.preventDefault();
+                                e.stopPropagation();
+
+                                // Toggle dropdown visibility
+                                isDropdownOpen = !isDropdownOpen;
+                                if (isDropdownOpen) {
+                                    dropdownMenu.style.display = 'block';
+                                    dropdownMenu.style.opacity = '1';
+                                    dropdownMenu.style.visibility = 'visible';
+                                } else {
+                                    dropdownMenu.style.display = 'none';
+                                }
+                            }
+                        });
+                    }
                 });
 
-                // Close menu only when clicking submenu items or non-dropdown links
-                const closeMenuLinks = document.querySelectorAll('.dropdown-menu a, .mega-menu a, .nav-links > li:not(.dropdown) > a, .header-cta-button');
-                closeMenuLinks.forEach(link => {
-                    link.addEventListener('click', function() {
+                // Close menu only when clicking actual submenu items or direct navigation links
+                const actualLinks = document.querySelectorAll('.dropdown-menu a, .mega-menu a, .nav-links > li:not(.dropdown) > a, .header-cta-button');
+                actualLinks.forEach(link => {
+                    link.addEventListener('click', function(e) {
                         if (window.innerWidth <= 992) {
-                            setTimeout(() => {
-                                mobileMenuToggle.classList.remove('active');
-                                headerNav.classList.remove('active');
-                            }, 100);
+                            // Only close menu if it's an actual link (not a dropdown toggle)
+                            if (!link.closest('.dropdown')?.querySelector('.dropdown-menu, .mega-menu')?.contains(link) ||
+                                link.closest('.dropdown-menu, .mega-menu')) {
+                                setTimeout(() => {
+                                    mobileMenuToggle.classList.remove('active');
+                                    headerNav.classList.remove('active');
+
+                                    // Reset all dropdowns
+                                    document.querySelectorAll('.dropdown-menu, .mega-menu').forEach(menu => {
+                                        menu.style.display = '';
+                                        menu.style.opacity = '';
+                                        menu.style.visibility = '';
+                                    });
+                                }, 300);
+                            }
                         }
                     });
                 });
@@ -2477,6 +2534,13 @@
                         if (!headerNav.contains(e.target) && !mobileMenuToggle.contains(e.target)) {
                             mobileMenuToggle.classList.remove('active');
                             headerNav.classList.remove('active');
+
+                            // Reset all dropdowns
+                            document.querySelectorAll('.dropdown-menu, .mega-menu').forEach(menu => {
+                                menu.style.display = '';
+                                menu.style.opacity = '';
+                                menu.style.visibility = '';
+                            });
                         }
                     }
                 });
